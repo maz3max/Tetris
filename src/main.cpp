@@ -13,6 +13,7 @@
 #define AQUA 6
 #define BLINK -1
 
+// sets a bit of an uint8_t to a desired value
 void setBit(uint8_t &_byte, uint8_t _bit, bool value) {
   if (value)
     _byte |= (1 << _bit);
@@ -20,47 +21,49 @@ void setBit(uint8_t &_byte, uint8_t _bit, bool value) {
     _byte &= ~(1 << _bit);
 }
 
+// toggles a bit of an uint8_t
 void toggleBit(uint8_t &_byte, uint8_t _bit) { _byte ^= (1 << _bit); }
 
+// returns the value of a bit of an uint8_t
 bool getBit(uint8_t &_byte, uint8_t _bit) { return _byte & (1 << _bit); }
 
 static uint8_t playground[WIDTH][HEIGHT]; // playing array
 static int8_t tile[4][2];    // storage for 4 block coordinates for current tile
 static int8_t pos[2];        // position of pivot point of current tile
-static uint8_t tile_nr = 0; // type of current tile  (index)
+static uint8_t tile_nr = 0;  // type of current tile  (index)
 static uint8_t rotation = 0; // rotation of current tile (sub_index)
 static uint8_t status =
-    0b10000000;              //{reset|pause|rotCCW|rotCW|left|right|down|timer}
+    0b10000000;             //{reset|pause|rotCCW|rotCW|left|right|down|timer}
 static uint8_t color = RED; // color value of the current tile
 
 // relative positions of the three remaining blocks
 // relative to the pivot point
-static const int8_t tiles[][3][2] =
-    {
-        {{0,-2},{0,-1},{0,1}},  //long piece vert
-        {{-1,0},{1,0},{2,0}},   //long piece hori
-        {{1,0},{0,1},{1,1}},    //block
-        {{-1,0},{0,1},{1,1}},   //stairs down hori
-        {{0,-1},{-1,0},{-1,1}}, //stairs down vert
-        {{1,0},{0,1},{-1,1}},   //stairs up hori
-        {{-1,-1},{-1,0},{0,1}}, //stairs up vert
-        {{0,-1},{0,1},{-1,1}},  //L left 000
-        {{-1,-1},{-1,0},{1,0}}, //L left 090
-        {{0,-1},{1,-1},{0,1}},  //L left 180
-        {{-1,0},{1,0},{1,1}},   //L left 270
-        {{0,-1},{0,1},{1,1}},   //L right 000
-        {{-1,1},{-1,0},{1,0}},  //L right 090
-        {{0,-1},{-1,-1},{0,1}}, //L right 180
-        {{-1,0},{1,0},{1,-1}},  //L right 270
-        {{-1,0},{0,-1},{1,0}},  //pedestral 000
-        {{0,-1},{1,0},{0,1}},   //pedestral 090
-        {{-1,0},{0,-1},{1,0}},  //pedestral 180
-        {{-1,0},{0,-1},{0,1}}   //pedestral 270
-    };
+static const int8_t tiles[][3][2] = {
+    {{0, -2}, {0, -1}, {0, 1}},  // long piece vert
+    {{-1, 0}, {1, 0}, {2, 0}},   // long piece hori
+    {{1, 0}, {0, 1}, {1, 1}},    // block
+    {{-1, 0}, {0, 1}, {1, 1}},   // stairs down hori
+    {{0, -1}, {-1, 0}, {-1, 1}}, // stairs down vert
+    {{1, 0}, {0, 1}, {-1, 1}},   // stairs up hori
+    {{-1, -1}, {-1, 0}, {0, 1}}, // stairs up vert
+    {{0, -1}, {0, 1}, {-1, 1}},  // L left 000
+    {{-1, -1}, {-1, 0}, {1, 0}}, // L left 090
+    {{0, -1}, {1, -1}, {0, 1}},  // L left 180
+    {{-1, 0}, {1, 0}, {1, 1}},   // L left 270
+    {{0, -1}, {0, 1}, {1, 1}},   // L right 000
+    {{-1, 1}, {-1, 0}, {1, 0}},  // L right 090
+    {{0, -1}, {-1, -1}, {0, 1}}, // L right 180
+    {{-1, 0}, {1, 0}, {1, -1}},  // L right 270
+    {{-1, 0}, {0, -1}, {1, 0}},  // pedestral 000
+    {{0, -1}, {1, 0}, {0, 1}},   // pedestral 090
+    {{-1, 0}, {0, -1}, {1, 0}},  // pedestral 180
+    {{-1, 0}, {0, -1}, {0, 1}}   // pedestral 270
+};
 
 // gets the specified tile
 // writes it into the tile variable
-void getTile(const uint8_t tile_nr,const uint8_t tile_rot,const int8_t x,const int8_t y){
+void getTile(const uint8_t tile_nr, const uint8_t tile_rot, const int8_t x,
+             const int8_t y) {
   size_t _index = 0;
   switch (tile_nr) {
   case 0:
@@ -89,7 +92,7 @@ void getTile(const uint8_t tile_nr,const uint8_t tile_rot,const int8_t x,const i
   tile[0][1] = y;
   for (size_t i = 0; i < 3; i++) {
     tile[i + 1][0] = x + tiles[_index][i][0];
-    tile[i + 1][1] =  y + tiles[_index][i][1];
+    tile[i + 1][1] = y + tiles[_index][i][1];
   }
 }
 
@@ -266,7 +269,7 @@ void tick() {
           setBit(status, 7, true);
           setBit(status, 6, true);
           for (size_t i = 0; i < WIDTH; i++) {
-            playground[i][HEIGHT - 1] = -1;
+            playground[i][HEIGHT - 1] = BLINK;
           }
         } else {
           resetTile();
@@ -278,7 +281,6 @@ void tick() {
   }
 }
 
-void setup() {
-}
+void setup() {}
 
 void loop() {}
