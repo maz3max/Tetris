@@ -33,7 +33,7 @@ static int8_t pos[2];        // position of pivot point of current tile
 static uint8_t tile_nr = 0;  // type of current tile  (index)
 static uint8_t rotation = 0; // rotation of current tile (sub_index)
 static uint8_t status =
-    0b10000000;             //{reset|pause|rotCCW|rotCW|left|right|down|timer}
+    0b10000000;             // {reset|pause|rotCCW|rotCW|left|right|down|timer}
 static uint8_t color = RED; // color value of the current tile
 
 // relative positions of the three remaining blocks
@@ -179,7 +179,7 @@ bool applyTile() {
     int8_t _x = tile[i][0];
     int8_t _y = tile[i][1];
     if (_y >= 0) {
-      playground[_x][_y] = color;
+      playground[_x][_y] = static_cast<uint8_t>(color);
     } else
       result = false;
   }
@@ -209,7 +209,7 @@ void checkLines() {
     }
     if (i == WIDTH - 1 && playground[i][j] != 0) {
       for (i = 0; i < WIDTH; i++) {
-        playground[i][j] = BLINK;
+        playground[i][j] = static_cast<uint8_t>(BLINK);
       }
     }
   }
@@ -218,7 +218,7 @@ void checkLines() {
 // collapses marked lines
 void removeLines() {
   for (size_t k = 0; k < HEIGHT; k++) {
-    if (playground[0][k] == BLINK) {
+    if (playground[0][k] == static_cast<uint8_t>(BLINK)) {
       for (size_t i = 0; i < WIDTH; i++) {
         for (size_t j = k; j > 0; j--) {
           playground[i][j] = playground[i][j - 1];
@@ -236,9 +236,10 @@ void tick() {
   if (getBit(status, 6)) {
     if (getBit(status, 7)) {
       for (size_t j = HEIGHT - 2; j >= 0; j--) {
-        if (playground[0][j] != -1 && playground[0][j + 1] == -1) {
+        if (playground[0][j] != static_cast<uint8_t>(BLINK) &&
+            playground[0][j + 1] == static_cast<uint8_t>(BLINK)) {
           for (size_t i = 0; i < WIDTH; i++) {
-            playground[i][j] = -1;
+            playground[i][j] = static_cast<uint8_t>(BLINK);
           }
         }
       }
@@ -269,7 +270,7 @@ void tick() {
           setBit(status, 7, true);
           setBit(status, 6, true);
           for (size_t i = 0; i < WIDTH; i++) {
-            playground[i][HEIGHT - 1] = BLINK;
+            playground[i][HEIGHT - 1] = static_cast<uint8_t>(BLINK);
           }
         } else {
           resetTile();
@@ -281,6 +282,6 @@ void tick() {
   }
 }
 
-void setup() {}
+void setup() { tick(); }
 
 void loop() {}
