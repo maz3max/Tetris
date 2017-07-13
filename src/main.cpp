@@ -245,26 +245,33 @@ void tick() {
       }
     }
   } else if (getBit(status, 7)) {
+    setBit(status, 7, false);
     resetTile();
     clearPG();
   } else {
     unapplyTile();
     if (getBit(status, 5)) {
+      setBit(status, 5, false);
       rotate(-1);
     }
     if (getBit(status, 4)) {
+      setBit(status, 4, false);
       rotate(1);
     }
     if (getBit(status, 3)) {
+      setBit(status, 3, false);
       translate(-1);
     }
     if (getBit(status, 2)) {
+      setBit(status, 2, false);
       translate(1);
     }
     if (getBit(status, 0)) {
       removeLines();
     }
     if (getBit(status, 1) || getBit(status, 0)) {
+      setBit(status, 0, false);
+      setBit(status, 1, false);
       if (!fall_down()) {
         if (!applyTile()) { // you lost :o
           setBit(status, 7, true);
