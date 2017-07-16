@@ -56,7 +56,7 @@ static const int8_t tiles[][3][2] = {
     {{-1, 0}, {1, 0}, {1, -1}},  // L right 270
     {{-1, 0}, {0, -1}, {1, 0}},  // pedestral 000
     {{0, -1}, {1, 0}, {0, 1}},   // pedestral 090
-    {{-1, 0}, {0, -1}, {1, 0}},  // pedestral 180
+    {{-1, 0}, {0, -1}, {1, 0}},  // pedestral 180    // thats wrong 
     {{-1, 0}, {0, -1}, {0, 1}}   // pedestral 270
 };
 
@@ -289,6 +289,71 @@ void tick() {
   }
 }
 
-void setup() { tick(); }
+volatile int x;
+int steps;
 
-void loop() {}
+ISR( TIMER1_OVF_vect  ) { //update display
+  //playground[x][y]
+
+  PORTC = 0x00;
+  PORTD = 0x00;
+
+  PORTA = ~(1<<x);
+
+  for(int y = 0; y < 8 ; y++)
+  {
+    if(playground[x][y] >= 1)
+      PORTC |= (1<<y);
+    if(playground[x][y+8] >= 1)
+      PORTD |= (1<<y);
+  }
+
+  if(x<7)
+    x++;
+  else
+    x = 0;
+}
+
+
+void setup()
+{
+  TCCR1B  = (1<<CS11); //| (1<<CS20); // Prescaler 8
+  TIMSK |= (1<<TOIE1);            // Timer Overflow Interrupt freischalten
+  tick();
+  resetTile();
+  sei(); //enable interrupt
+  x = 0;
+  steps = 0;
+  //SET PORTS OUTPUT AND INPUT
+  DDRA = 0xFF;
+  DDRC = 0xFF;
+  DDRD = 0xFF;
+  DDRB = 0b11111000;
+  PORTB = 0b00000111; // pullup
+}
+
+
+
+void loop()
+{
+
+  delay(30);
+  if(steps >= 5)
+  {
+    status |= 0b00000001;
+    tick();
+    steps = 0;
+  }
+
+  //unschön geschriebene button abfrage
+
+  if((PINB |= 0b11111110) == 0b11111110)
+    status |= 0b00010000; //turn cw
+  if((PINB |= 0b11111011) == 0b11111011)
+    status |= 0b00001000; //shift left
+  if((PINB |= 0b11111101) == 0b11111101)
+    status |= 0b00000100; //shift right
+
+  tick();
+  steps++;
+}
